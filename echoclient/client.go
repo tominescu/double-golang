@@ -11,7 +11,7 @@ import (
 )
 
 func perror(prefix string, err error) {
-	fmt.Fprintf(os.Stderr, "%s:%s", prefix, err)
+	fmt.Fprintf(os.Stderr, "%s:%s\n", prefix, err)
 }
 
 func handle_error(prefix string, err error) {

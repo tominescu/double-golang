@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 func perror(prefix string, err error) {
@@ -25,6 +27,13 @@ func usage(name string) {
 }
 
 func main() {
+	signal_chan := make(chan os.Signal, 1)
+	signal.Notify(signal_chan, syscall.SIGTERM, syscall.SIGINT)
+	go func(ch chan os.Signal) {
+		<-ch
+		os.Exit(0)
+	}(signal_chan)
+
 	port := flag.Int("p", 9900, "remote port")
 	flag.Parse()
 
@@ -34,12 +43,6 @@ func main() {
 	}
 
 	remote_addr := "localhost"
-	/*
-		fmt.Printf("flag.NArg() == %d\n", flag.NArg())
-		for i := 0; i < flag.NArg(); i++ {
-			fmt.Printf("flag.Arg(%d) == %s\n", i, flag.Arg(i))
-		}
-	*/
 	if flag.NArg() == 1 {
 		remote_addr = flag.Arg(0)
 	}
@@ -48,16 +51,13 @@ func main() {
 	handle_error("dial", err)
 	defer conn.Close()
 
+	fmt.Fprintf(os.Stderr, "Connected to %s:%d\n", remote_addr, remote_port)
+	fmt.Fprintf(os.Stderr, "Press Ctrl + C to quit\n")
 	go RecvConn(conn)
 
 	sr := bufio.NewReader(os.Stdin)
-	buf := make([]byte, 1024)
 	for {
-		_, err := sr.Read(buf)
-		if err != nil {
-			break
-		}
-		_, err = conn.Write(buf)
+		_, err := sr.WriteTo(conn)
 		if err != nil {
 			break
 		}
@@ -67,10 +67,10 @@ func main() {
 func RecvConn(conn net.Conn) {
 	buf := make([]byte, 1024)
 	for {
-		_, err := conn.Read(buf)
+		nread, err := conn.Read(buf)
 		if err != nil {
 			os.Exit(0)
 		}
-		fmt.Printf("%s", string(buf))
+		fmt.Printf("%s", string(buf[0:nread]))
 	}
 }

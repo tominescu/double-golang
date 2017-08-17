@@ -71,7 +71,7 @@ func ListenUDP(port int) {
 			fmt.Printf("Read udp error: %s\n", err)
 			continue
 		}
-		fmt.Printf("Read %d bytes from udp client[%s:%d]: %s\n", n, remoteAddr.IP, remoteAddr.Port, strings.TrimSpace(string(buf[:n])))
+		simplelog.Info("Read %d bytes from udp client[%s:%d]: %s", n, remoteAddr.IP, remoteAddr.Port, strings.TrimSpace(string(buf[:n])))
 		_, err = ln.WriteToUDP([]byte(fmt.Sprintf("%s:%d\n", remoteAddr.IP, remoteAddr.Port)), remoteAddr)
 		if err != nil {
 			fmt.Printf("Write udp to client[%s:%d] error: %s\n", remoteAddr.IP, remoteAddr.Port, err)

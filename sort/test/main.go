@@ -13,7 +13,7 @@ func main() {
 	//sort.InsertSort(nums)
 	//sort.SelectSort(nums)
 	//sort.QuickSort(nums)
-	nums = sort.HeapSort(nums)
+	sort.HeapSort2(nums)
 	/*
 		nums1 := []int{1, 3, 5}
 		nums2 := []int{2, 4, 6, 8, 10}
